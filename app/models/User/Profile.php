@@ -3,11 +3,7 @@
 class User_Profile extends Eloquent {
 	
 	protected $table = 'users_profiles';
-	/**
-	 * The attributes to be set when creating a profile.
-	 *
-	 * @var array
-	 */
+	
 	protected $fillable = array(
 		'user_id', 'first_name', 'last_name', 'gender', 'dob'
 	);

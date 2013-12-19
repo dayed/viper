@@ -27,18 +27,6 @@ return array(
 	*/
 
 	'url' => 'http://localhost',
-	
-	/*
-	|--------------------------------------------------------------------------
-	| Chars for random strings
-	|--------------------------------------------------------------------------
-	|
-	| This string is used to create random strings, such as that used for the 
-	| token generation of the reset code generation.
-	|
-	*/
-	
-	'chars' => 'abcdefghijklmnopqrstuvwxyz1234567890',
 
 	/*
 	|--------------------------------------------------------------------------

@@ -3,12 +3,7 @@
 class User extends Eloquent {
 	
 	protected $table = 'users';
-	/**
-	 * When creating a user, the only things that should be able to be set, 
-	 * are the username, password and email address.
-	 *
-	 * @var array
-	 */
+	
 	protected $fillable = array(
 		'username', 'password', 'email'
 	);
