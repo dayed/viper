@@ -1,6 +1,6 @@
 {
 	"name": "ollieread/viper",
-	"description": "Viper API.",
+	"description": "Game API built with Laravel",
 	"keywords": ["gaming", "backend", "api", "viper"],
 	"license": "MIT",
 	"require": {
