@@ -1,6 +1,7 @@
 <?php namespace Viper\Controller;
 
 use Viper\Exception as Viper_Exception;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends User_BaseController {
 	/**
@@ -111,7 +112,7 @@ class UserController extends User_BaseController {
 			 * that the API credentials are for.
 			 */
 			if(isset($this->with['gamedata'])) {
-				$gamedata = $this->game->data()->forUser($user->id);
+				$gamedata = $this->game->data()->forUser($this->user->id);
 				$user_response['gamedata'] = $gamedata ? $gamedata->toArray() : array();
 			}
 			Event::fire('user.login', array('user' => $this->user));
@@ -126,6 +127,45 @@ class UserController extends User_BaseController {
 		 * they're passing to the API.
 		 */
 		throw new Viper_Exception('Already logged in', 'token');
+	}
+	/**
+	 * This method is a bit of cheat. It's used to allow the game to check whether
+	 * a token is valid or not, it'd typically be used for a mobile game where
+	 * the game hasn't been ran in a while, but there's still a user token stored.
+	 * 
+	 * We don't throw an exception here because the exception would be automatically
+	 * thrown thanks to BaseController::__construct(), so it's safe to assume that
+	 * access to this method means that the token is valid, so we return the user
+	 * data, providing the user property has been populated.
+	 * 
+	 * @return Illuminate\Http\JsonResponse
+	 */
+	public function authorise() {
+		if($this->user) {
+			/**
+			 * This bit is the same as with login(), where we compile a list
+			 * of the relationships that we should provide should the token
+			 * be successful.
+			 */
+			$with = array();
+			
+			if(isset($this->with['profile'])) {
+				$with[] = 'profile';
+			}
+			
+			$this->user->load($with);
+			
+			$user_response = $this->user->toArray();
+			
+			if(isset($this->with['gamedata'])) {
+				$gamedata = $this->game->data()->forUser($this->user->id);
+				$user_response['gamedata'] = $gamedata ? $gamedata->toArray() : array();
+			}
+			/**
+			 * Return the user data that corresponds with the token.
+			 */
+			return $this->success(array('user' => $user_response));
+		}
 	}
 	/**
 	 * This will log the user out. It's basically an endpoint for the helper function
