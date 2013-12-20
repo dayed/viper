@@ -1,5 +1,8 @@
 <?php namespace Viper\Controller;
 
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Response;
+
 class BaseController extends Controller {
 	/**
 	 * Contains an instance of the current user based on the authentication
