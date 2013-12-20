@@ -107,15 +107,9 @@ class BaseController extends Controller {
 					$user_token = User_Token::with('user')->where('token', $token)->first();
 					
 					if($user_token && $user_token->count() > 0) {
-						
-						if($user_token->is_active === false) {
-							/**
-							 * The user isn't active, therefore we should
-							 * throw an exception.
-							 */
-							throw new Viper_Exception('Invalid Token', 'token');
-						}
-						
+						/**
+						 * Set the user.
+						 */
 						$this->user = $user_token->user;
 					} else {
 						/**
