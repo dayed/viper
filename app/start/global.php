@@ -50,8 +50,16 @@ App::error(function(Exception $exception, $code) {
 	Log::error($exception);
 });
 
+App::missing(function(Exception $exception) {
+	return Viper\Controller\BaseController::error(
+			Config::get('response.method.code'), 
+			Config::get('response.method.http'), 
+			'Method not found'
+	);
+});
+
 App::error(function(Viper\Exception $exception) {
-	Viper\Controller\BaseController::error(
+	return Viper\Controller\BaseController::error(
 			$exception->getCode(), 
 			$exception->getStatusCode(), 
 			$exception->getMessage()
@@ -70,10 +78,10 @@ App::error(function(Viper\Exception $exception) {
 */
 
 App::down(function() {
-	Viper\Controller\BaseController::error(
+	return Viper\Controller\BaseController::error(
 			Config::get('response.unavailable.code'), 
 			Config::get('response.unavailable.http'), 
-			'Be Right Back'
+			'Be right back'
 	);
 });
 
