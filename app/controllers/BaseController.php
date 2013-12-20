@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Response;
 use Viper\Exception as Viper_Exception;
 use Viper\Model\Game;
 use Viper\Model\User;
+use Viper\Model\User_Token;
 
 class BaseController extends Controller {
 	/**
@@ -70,7 +71,10 @@ class BaseController extends Controller {
 					if(Input::has('arguments') && Input::has('signature')) {
 						$arguments = Input::get('arguments');
 						$signature = Input::get('signature');
-
+						/**
+						 * Todo: Check to make sure provided arguments is JSON string,
+						 * not an array
+						 */
 						if(hash_hmac('sha1', $arguments, $secret, false) !== $signature) {
 							/**
 							 * The HMAC doesn't match, throw an exception.
