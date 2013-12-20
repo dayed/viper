@@ -9,10 +9,20 @@
          processIsolation="false"
          stopOnFailure="false"
          syntaxCheck="false"
+		 verbose="true"
 >
     <testsuites>
-        <testsuite name="Application Test Suite">
+        <testsuite name="Viper Test Suite">
             <directory>./app/tests/</directory>
         </testsuite>
     </testsuites>
+	<filter>
+		<whitelist>
+			<directory suffix=".php">app/controllers</directory>
+			<directory suffix=".php">app/models</directory>
+		</whitelist>
+	</filter>
+	<logging>
+		<log type="coverage-html" target="public/coverage" charset="UTF-8" highlight="true" />
+	</logging>
 </phpunit>
