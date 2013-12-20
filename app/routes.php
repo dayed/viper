@@ -11,7 +11,34 @@
 |
 */
 
-Route::get('/', function()
-{
-	return View::make('hello');
+Route::get('/', function() {
+	return Viper\Controller\BaseController::error(
+			Config::get('response.method.code'), 
+			Config::get('response.method.http'), 
+			'No method supplied'
+	);
+});
+
+Route::group(array('prefix' => '/user'), function() {
+	
+	Route::post('/login', array(
+		'as'	=> 'user.login',
+		'uses'	=> 'UserController@login'
+	));
+	
+	Route::get('/authorise', array(
+		'as'	=> 'user.authorise',
+		'uses'	=> 'UserController@authorise'
+	));
+	
+	Route::post('/logout', array(
+		'as'	=> 'user.logout',
+		'uses'	=> 'UserController@logout'
+	));
+	
+	Route::post('/register', array(
+		'as'	=> 'user.register',
+		'uses'	=> 'UserController@register'
+	));
+	
 });
