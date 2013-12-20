@@ -1,11 +1,14 @@
 <?php namespace Viper\Model;
 
+use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Support\Facades\Hash;
+
 class User extends Eloquent {
 	
 	protected $table = 'users';
 	
 	protected $fillable = array(
-		'username', 'password', 'email'
+		'username', 'password', 'email', 'active'
 	);
 	/**
 	 * We don't ever want the user id, the password hash, the token or the 
@@ -15,6 +18,14 @@ class User extends Eloquent {
 	 */
 	protected $hidden = array(
 		'id', 'password', 'token', 'reset'
+	);
+	/**
+	 * Keys to return when model is converted to an array.
+	 *
+	 * @var array
+	 */
+	protected $appends = array(
+		'is_active'
 	);
 	/**
 	 * Definition of the relationship between the user and the user profile.
@@ -47,6 +58,24 @@ class User extends Eloquent {
 	 */
 	public function data() {
 		return $this->hasMany('User_Gamedata');
+	}
+	/**
+	 * This is setup so that we don't have to hash new passwords, and we can just
+	 * let them be auto-hashed.
+	 * 
+	 * @param string $value
+	 */
+	public function setPasswordAttribute($value) {
+		$this->attributes['password'] = Hash::make($value);
+	}
+	/**
+	 * Nice little helper function so developers have a boolean to validate
+	 * against. Also makes it nicer to use in the system.
+	 * 
+	 * @return boolean
+	 */
+	public function getIsActive() {
+		return $this->attributes['active'] == 1 ? true : false;
 	}
 	
 }

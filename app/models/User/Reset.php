@@ -1,5 +1,9 @@
 <?php namespace Viper\Model;
 
+use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
 class User_Reset extends Eloquent {
 	
 	protected $table = 'users_resets';
@@ -31,7 +35,7 @@ class User_Reset extends Eloquent {
 		if(empty($this->attributes['code'])) {
 			do {
 				$code = Str::random(8);
-			} while(DB::table($this->table)->where('code', $code)->count() == 0);
+			} while(DB::table($this->table)->where('code', $code)->count() != 0);
 			
 			$this->attributes['code'] = $code;
 		}

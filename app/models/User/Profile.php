@@ -1,5 +1,7 @@
 <?php namespace Viper\Model;
 
+use Illuminate\Database\Eloquent\Model as Eloquent;
+
 class User_Profile extends Eloquent {
 	
 	protected $table = 'users_profiles';

@@ -1,5 +1,9 @@
 <?php namespace Viper\Model;
 
+use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
 class User_Token extends Eloquent {
 	
 	protected $table = 'users_tokens';
@@ -30,8 +34,8 @@ class User_Token extends Eloquent {
 	public function generate() {
 		if(empty($this->attributes['token'])) {
 			do {
-				$token = md5($this->attributes['id'] . Str::random(16));
-			} while(DB::table($this->table)->where('token', $token)->count() == 0);
+				$token = hash('md5', ($this->attributes['id'] . $this->attributes['user_id'] . Str::random(16)), false);
+			} while(DB::table($this->table)->where('token', $token)->count() != 0);
 			
 			$this->attributes['token'] = $token;
 		}
