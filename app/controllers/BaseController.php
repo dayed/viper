@@ -1,7 +1,10 @@
-<?php namespace Viper\Controller;
+<?php
 
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Response;
+use Viper\Exception as Viper_Exception;
+use Viper\Model\Game;
+use Viper\Model\User;
 
 class BaseController extends Controller {
 	/**
@@ -48,7 +51,6 @@ class BaseController extends Controller {
 			$game = Game::where('key', $key)->first();
 			
 			if($game && $game->count() > 0) {
-				
 				if($game->is_active === false) {
 					/**
 					 * The game isn't active, so we'll throw an exception.
@@ -58,7 +60,7 @@ class BaseController extends Controller {
 				
 				$this->game = $game;				
 				$secret = $this->game->secret;
-				$method = strtolower(Request::method());
+				$method = strtolower(Request::getMethod());
 
 				if($method === 'post') {
 					/**

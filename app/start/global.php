@@ -51,7 +51,7 @@ App::error(function(Exception $exception, $code) {
 });
 
 App::missing(function(Exception $exception) {
-	return Viper\Controller\BaseController::error(
+	return BaseController::error(
 			Config::get('response.method.code'), 
 			Config::get('response.method.http'), 
 			'Method not found'
@@ -59,7 +59,7 @@ App::missing(function(Exception $exception) {
 });
 
 App::error(function(Viper\Exception $exception) {
-	return Viper\Controller\BaseController::error(
+	return BaseController::error(
 			$exception->getCode(), 
 			$exception->getStatusCode(), 
 			$exception->getMessage()
@@ -78,7 +78,7 @@ App::error(function(Viper\Exception $exception) {
 */
 
 App::down(function() {
-	return Viper\Controller\BaseController::error(
+	return BaseController::error(
 			Config::get('response.unavailable.code'), 
 			Config::get('response.unavailable.http'), 
 			'Be right back'

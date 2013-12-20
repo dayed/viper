@@ -1,4 +1,4 @@
-<?php namespace Viper\Controller;
+<?php
 
 use Viper\Exception as Viper_Exception;
 

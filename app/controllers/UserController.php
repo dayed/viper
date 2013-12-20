@@ -1,4 +1,4 @@
-<?php namespace Viper\Controller;
+<?php
 
 use Viper\Exception as Viper_Exception;
 use Illuminate\Support\Facades\Validator;
@@ -133,10 +133,7 @@ class UserController extends User_BaseController {
 	 * a token is valid or not, it'd typically be used for a mobile game where
 	 * the game hasn't been ran in a while, but there's still a user token stored.
 	 * 
-	 * We don't throw an exception here because the exception would be automatically
-	 * thrown thanks to BaseController::__construct(), so it's safe to assume that
-	 * access to this method means that the token is valid, so we return the user
-	 * data, providing the user property has been populated.
+	 * We return the user data, providing the user property has been populated.
 	 * 
 	 * @return Illuminate\Http\JsonResponse
 	 */
@@ -166,6 +163,8 @@ class UserController extends User_BaseController {
 			 */
 			return $this->success(array('user' => $user_response));
 		}
+		
+		throw new Viper_Exception('Invalid token', 'token');
 	}
 	/**
 	 * This will log the user out. It's basically an endpoint for the helper function
