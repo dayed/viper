@@ -94,7 +94,7 @@ class ErrorTest extends TestCase {
 		$config = Config::get('response.token');
 		
 		try {
-			$this->call('GET', '/user/authorise?key=' . $this->credentials['valid']['key']);
+			$this->call('GET', '/user/authorise?key=' . $this->credentials['valid']['key'] . '&token=1');
 		} catch(\Viper\Exception $e) {
 			$this->assertEquals($e->getCode(), $config['code']);
 			$this->assertEquals($e->getStatusCode(), $config['http']);
@@ -124,10 +124,16 @@ class ErrorTest extends TestCase {
 	 * Test that we respond properly to a request with an invalid signature
 	 */
 	public function testInvalidSignature() {
-		$config = Config::get('response.incomplete');
+		$config = Config::get('response.signature');
 		
 		try {
-			$this->call('POST', '/user/login?key=' . $this->credentials['valid']['key']);
+			$details = array('this' => 'isatest');
+			$signature = hash_hmac('sha1', json_encode($details), $this->credentials['valid']['secret'], false);
+			$details['so'] = 'isthis';
+			$this->call('POST', '/user/login?key=' . $this->credentials['valid']['key'], array(
+				'arguments' => json_encode($details),
+				'signature' => $signature
+			));
 		} catch(\Viper\Exception $e) {
 			$this->assertEquals($e->getCode(), $config['code']);
 			$this->assertEquals($e->getStatusCode(), $config['http']);
