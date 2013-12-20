@@ -1,6 +1,8 @@
 <?php namespace Viper;
 
-class Exception extends Exception {
+use Illuminate\Support\Facades\Config;
+
+class Exception extends \Exception {
 	/**
 	 * This is the http status code to be returned when a response is sent via the API.
 	 * It's here because normal Exceptions don't have this attribute.
