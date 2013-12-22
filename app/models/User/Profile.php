@@ -33,7 +33,7 @@ class User_Profile extends Eloquent {
 	 * @return \Viper\Model\User
 	 */
 	public function user() {
-		return $this->belongsTo('User');
+		return $this->belongsTo('\Viper\Model\User');
 	}
 	/**
 	 * For ease, we return the entire name so that developers don't have to manually

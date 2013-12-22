@@ -2,6 +2,8 @@
 
 use Viper\Exception as Viper_Exception;
 use Illuminate\Support\Facades\Validator;
+use Viper\Model\User;
+use Viper\Model\User_Token;
 
 class UserController extends User_BaseController {
 	/**
@@ -21,7 +23,7 @@ class UserController extends User_BaseController {
 			$validator = Validator::make(
 				$this->arguments,
 				array(
-					'username' => array('required', 'exits:users'),
+					'username' => array('required', 'exists:users'),
 					'password' => array('required')
 				));
 			/**
@@ -29,7 +31,7 @@ class UserController extends User_BaseController {
 			 * of type validation.
 			 */
 			if($validator->fails()) {
-				throw new Viper_Exception($validator->messages, 'validation');
+				throw new Viper_Exception($validator->messages(), 'validation');
 			}
 			/**
 			 * Setup the default models that we need for this, as well as add
@@ -41,7 +43,7 @@ class UserController extends User_BaseController {
 			 * profile, gamedata and other relationships returned upon logging in, 
 			 * to avoid making multiple API calls.
 			 */
-			if(isset($this->with['profile'])) {
+			if(in_array('profile', $this->with)) {
 				$with[] = 'profile';
 			}
 			/**
@@ -60,8 +62,8 @@ class UserController extends User_BaseController {
 			 * Check the provided password with that saved for the user. If the
 			 * passwords do not match, throw an exception of argument type.
 			 */
-			if(!Hash::check($user->password, $this->arguments->password)) {
-				throw new Viper_Exception('Incorrect password', 'argument', $e);
+			if(!Hash::check($this->arguments['password'], $user->password)) {
+				throw new Viper_Exception('Incorrect password', 'argument');
 			}
 			/**
 			 * This means we can be lazy and abstract out the token removal for other
@@ -104,14 +106,14 @@ class UserController extends User_BaseController {
 			/**
 			 * We manually add this on just to make sure.
 			 */
-			$user_response['token'] = $token->toArray();
+			$user_response['token'] = $token->token;
 			/**
 			 * If a system has many games, than it's only sensible for a user to
 			 * have multiple gamedata entries, and seeing as this is a one to many
 			 * relationship, we want to get only the record specific to the game
 			 * that the API credentials are for.
 			 */
-			if(isset($this->with['gamedata'])) {
+			if(in_array('gamedata', $this->with)) {
 				$gamedata = $this->game->data()->forUser($this->user->id);
 				$user_response['gamedata'] = $gamedata ? $gamedata->toArray() : array();
 			}
@@ -146,7 +148,7 @@ class UserController extends User_BaseController {
 			 */
 			$with = array();
 			
-			if(isset($this->with['profile'])) {
+			if(in_array('profile', $this->with)) {
 				$with[] = 'profile';
 			}
 			
@@ -154,8 +156,8 @@ class UserController extends User_BaseController {
 			
 			$user_response = $this->user->toArray();
 			
-			if(isset($this->with['gamedata'])) {
-				$gamedata = $this->game->data()->forUser($this->user->id);
+			if(in_array('gamedata', $this->with)) {
+				$gamedata = $this->game->data()->forUser($this->user->id)->get();
 				$user_response['gamedata'] = $gamedata ? $gamedata->toArray() : array();
 			}
 			/**

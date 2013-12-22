@@ -1,15 +1,16 @@
 <?php
 
 use Viper\Exception as Viper_Exception;
+use Viper\Model\User_Token;
 
 class User_BaseController extends BaseController {
 	
 	protected function _login() {
 		if($this->user) {
-			$token = new Token;
+			$token = new User_Token;
 			$token->generate();
 			
-			if($this->user->tokens()->save($token)) {
+			if($this->user->token()->save($token)) {
 				return $token;
 			}
 		}
@@ -21,7 +22,7 @@ class User_BaseController extends BaseController {
 			 * Grab the active token. We do this just incase there is another
 			 * token floating around.
 			 */
-			$active_token = $this->user->activeToken();
+			$active_token = $this->user->token;
 			/**
 			 * Now remove that token and return success. Seeing as this is a 
 			 * simple method/endpoint, no data is required on the return.

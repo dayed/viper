@@ -92,13 +92,17 @@ class BaseController extends Controller {
 					}
 				} elseif($method === 'get') {
 					/**
-					 * If the with attribute was provided, then populate the list.
+					 * We don't do anything special for get
 					 */
-					if(Input::has('with')) {
-						$with = Input::get('with');
-						
-						$this->with = explode(',', $with);
-					}
+				}
+				/**
+				 * The with argument allows for developers to request related
+				 * models.
+				 */
+				if(Input::has('with')) {
+					$with = Input::get('with');
+
+					$this->with = explode(',', $with);
 				}
 				/**
 				 * If the token attribute is provided, then we know that this request
@@ -106,10 +110,8 @@ class BaseController extends Controller {
 				 * populate the user property so the rest of the system knows.
 				 */
 				if(Input::has('token')) {
-				
 					$token = Input::get('token');
 					$user_token = User_Token::with('user')->where('token', $token)->first();
-					
 					if($user_token && $user_token->count() > 0) {
 						/**
 						 * Set the user.

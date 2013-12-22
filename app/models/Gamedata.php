@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
-abstract class Gamedata {
+abstract class Gamedata extends Eloquent {
 	
 	protected $hidden = array(
 		'id', 'user_id'

@@ -21,7 +21,7 @@ class Game extends Eloquent {
 	);
 	
 	public function data() {
-		$model_name = 'Gamedata_' . Str::camel($this->attributes['name']);
+		$model_name = '\Viper\Model\Gamedata_' . $this->attributes['model'];
 		
 		return $this->hasMany($model_name);
 	}

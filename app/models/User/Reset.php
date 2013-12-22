@@ -26,7 +26,7 @@ class User_Reset extends Eloquent {
 	 * @return \Viper\Model\User
 	 */
 	public function user() {
-		return $this->belongsTo('User');
+		return $this->belongsTo('\Viper\Model\User');
 	}
 	/**
 	 * Generates a code and then hashes it, giving us the token.

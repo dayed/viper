@@ -26,7 +26,7 @@ class User_Token extends Eloquent {
 	 * @return \Viper\Model\User
 	 */
 	public function user() {
-		return $this->belongsTo('User');
+		return $this->belongsTo('\Viper\Model\User');
 	}
 	/**
 	 * Generates a code and then hashes it, giving us the token.
@@ -34,7 +34,7 @@ class User_Token extends Eloquent {
 	public function generate() {
 		if(empty($this->attributes['token'])) {
 			do {
-				$token = hash('md5', ($this->attributes['id'] . $this->attributes['user_id'] . Str::random(16)), false);
+				$token = hash('md5', (Str::random(16) . time()), false);
 			} while(DB::table($this->table)->where('token', $token)->count() != 0);
 			
 			$this->attributes['token'] = $token;
