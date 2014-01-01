@@ -190,5 +190,21 @@ class BaseController extends Controller {
 	public function success($data = array()) {
 		return self::response('success', $data);
 	}
+    /**
+     * Helper function to facilitate the returning of a failure that shouldn't result in
+     * an error. Ordinarily this wouldn't happen but there may some fringe cases, and
+     * anyway, it doesn't hurt to have it.
+     *
+     * @param mixed $message
+     * @param string $type
+     * @return Illuminate\Http\JsonResponse 
+     */
+    public function failure($message, $type) {
+        $config = Config::get('response.' . $type);
+        
+        if($config && is_array($config)) {
+            return self::error($config['code'], $config['http'], $message);
+        }
+    }
 	
 }
