@@ -77,30 +77,26 @@ class UserController extends User_BaseController {
 			 */
 			$user_response = $this->user->toArray();
 			/**
-			 * Destroying the user token is the same process we use for logout, so 
-			 * we just call the helper function for this.
+			 * This is the nice helper function to destroy an existing user token. At this
+             * point we don't care whether this returns false, as a false would indicate that
+             * the user doesn't have an existing token, which is fine.
+             *
+             * The only other time it returns false is if $this->user is empty, which is fine
+             * as that should never happen, it's really just there to catch the rare chance
+             * that it may happen.
 			 */
-			try {
-				$this->_logout();
-			} catch(Viper_Exception $e) {
-				/**
-				 * We don't rethrow the Viper_Exception because the only ones returned
-				 * by this method mean that we don't have a current active token, which
-				 * is fine.
-				 */
-			} catch(Exception $e) {
-				/**
-				 * We do however, want to catch anything that isn't a Viper_Exception
-				 * and throw a new Viper_Exception of unknown type.
-				 */
-				throw new Viper_Exception('Unknown Error', 'unknown', $e);
-			}
+			$this->_logout();
 			/**
 			 * Create a new token, generate the code and assign to the user.
 			 */
-			try {
-				$token = $this->_login();
-			} catch(Viper_Exception $e) {
+			$token = $this->_login();
+            /**
+             * We check instanceof rather than is_null() because there shouldn't ever be
+             * a time when this method returns anything but null or User_Token, if it does
+             * you changed core code and you should have really changed it here too. That being
+             * said, if you're seeing this, you forgot to do a usage search :P
+             */
+            if(!($token instanceof User_Token)) {
 				throw new Viper_Exception('Unable to generate user token', 'unknown');
 			}
 			/**
@@ -117,7 +113,12 @@ class UserController extends User_BaseController {
 				$gamedata = $this->game->data()->forUser($this->user->id);
 				$user_response['gamedata'] = $gamedata ? $gamedata->toArray() : array();
 			}
-			Event::fire('user.login', array('user' => $this->user));
+            /**
+             * Here we fire an even for user.login, which allows you, yes you, to
+             * subscribe to this event and do some funky stuff, like, award XP or soft
+             * currency if this is the first time they've signed in today.
+             */
+            Event::fire('user.login', array('user' => $this->user));
 			/**
 			 * We've got everything we need, now return the user response under the
 			 * user entry.
@@ -165,8 +166,22 @@ class UserController extends User_BaseController {
 			 */
 			return $this->success(array('user' => $user_response));
 		}
-		
-		throw new Viper_Exception('Invalid token', 'token');
+        /**
+         * This is the exception that proves the rule, which is ironic considering the
+         * rule is that there will be a method that doesn't throw an exception, ahaha, man
+         * I'm funny.
+         *
+         * Anyway, in case you're the curious kind and have survived this long without
+         * electricuting yourself by sticking a fork in a plug socket, you deserve an explanation.
+         * Well, we don't return anything here or throw an exception, simply because on the off chance
+         * that the supplied token is invalid, our lovely magical constructor will have thrown
+         * a wobbler and responded with an error.
+         *
+         * 5 minutes have passed since writing the above, and my confidence in the fact that you'll
+         * never hit this point has been dampened thanks to the power of hindsight, so I'm returning
+         * an error after all.
+         */
+        return $this->failure('Invalid token', 'token');
 	}
 	/**
 	 * This will log the user out. It's basically an endpoint for the helper function
