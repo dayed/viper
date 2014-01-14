@@ -15,17 +15,17 @@ $app = new Illuminate\Foundation\Application;
 
 /**
  * Application environment.
- * 
+ *
  * To control this, in the VirtualHost config for the API use
- * 
- *	setEnv APPLICATION ENV [production|development]
+ *
+ *    setEnv APPLICATION ENV [production|development]
  */
-$env = $app->detectEnvironment(function() {
-	if(isset($_SERVER['APPLICATION_ENV'])) {
-		return $_SERVER['APPLICATION_ENV'];
-	} else {
-		return 'production';
-	}
+$env = $app->detectEnvironment(function () {
+    if (isset($_SERVER['APPLICATION_ENV'])) {
+        return $_SERVER['APPLICATION_ENV'];
+    } else {
+        return 'production';
+    }
 });
 
 /*
@@ -39,7 +39,7 @@ $env = $app->detectEnvironment(function() {
 |
 */
 
-$app->bindInstallPaths(require __DIR__.'/paths.php');
+$app->bindInstallPaths(require __DIR__ . '/paths.php');
 
 /*
 |--------------------------------------------------------------------------
@@ -52,9 +52,9 @@ $app->bindInstallPaths(require __DIR__.'/paths.php');
 |
 */
 
-$framework = $app['path.base'].'/vendor/laravel/framework/src';
+$framework = $app['path.base'] . '/vendor/laravel/framework/src';
 
-require $framework.'/Illuminate/Foundation/start.php';
+require $framework . '/Illuminate/Foundation/start.php';
 
 /*
 |--------------------------------------------------------------------------

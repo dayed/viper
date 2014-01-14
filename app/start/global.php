@@ -13,10 +13,10 @@
 
 ClassLoader::addDirectories(array(
 
-	app_path().'/commands',
-	app_path().'/controllers',
-	app_path().'/models',
-	app_path().'/database/seeds',
+    app_path() . '/commands',
+    app_path() . '/controllers',
+    app_path() . '/models',
+    app_path() . '/database/seeds',
 
 ));
 
@@ -31,7 +31,7 @@ ClassLoader::addDirectories(array(
 |
 */
 
-Log::useFiles(storage_path().'/logs/laravel.log');
+Log::useFiles(storage_path() . '/logs/laravel.log');
 
 /*
 |--------------------------------------------------------------------------
@@ -46,8 +46,8 @@ Log::useFiles(storage_path().'/logs/laravel.log');
 |
 */
 
-App::error(function(Exception $exception, $code) {
-	Log::error($exception);
+App::error(function (Exception $exception, $code) {
+    Log::error($exception);
 
     return BaseController::error(
         Config::get('response.unknown.code'),
@@ -57,7 +57,7 @@ App::error(function(Exception $exception, $code) {
 });
 
 
-App::missing(function(Exception $exception) {
+App::missing(function (Exception $exception) {
     return BaseController::error(
         Config::get('response.method.code'),
         Config::get('response.method.http'),
@@ -65,7 +65,7 @@ App::missing(function(Exception $exception) {
     );
 });
 
-App::error(function(Viper\Exception $exception) {
+App::error(function (Viper\Exception $exception) {
     return BaseController::error(
         $exception->getCode(),
         $exception->getStatusCode(),
@@ -84,12 +84,12 @@ App::error(function(Viper\Exception $exception) {
 |
 */
 
-App::down(function() {
-	return BaseController::error(
+App::down(function () {
+    return BaseController::error(
         Config::get('response.unavailable.code'),
         Config::get('response.unavailable.http'),
         'Be right back'
-	);
+    );
 });
 
 /*
@@ -103,4 +103,4 @@ App::down(function() {
 |
 */
 
-require app_path().'/filters.php';
+require app_path() . '/filters.php';

@@ -7,57 +7,60 @@ use Viper\Model\Game;
 use Viper\Model\User;
 use Viper\Model\User_Token;
 
-class BaseController extends Controller {
-	/**
-	 * Contains an instance of the current user based on the authentication
-	 * token passed with the current request.
-	 * 
-	 * @var Viper\Model\User
-	 */
-	protected $user;
-	/**
-	 * Contains an instance of the current game based on the key passed with
-	 * the current request.
-	 *
-	 * @var Viper\Model\Game
-	 */
-	protected $game;
-	/**
-	 * Contains all the current arguments for the request.
-	 *
-	 * @var array
-	 */
-	protected $arguments = array();
-	/**
-	 * When making GET requests, certain endpoints will allow for the return
-	 * of associated models and data, this contains the list of requested
-	 * relationships.
-	 *
-	 * @var array
-	 */
-	protected $with = array();
-	/**
-	 * At the start of every call we grab the information and populate the
-	 * above properties, this makes the system smooth and saves having to
-	 * check signatures and grab information manually.
-	 */
-	public function __construct() {
-		if(Input::has('key')) {
-			/**
-			 * The request has the key attribute, so we know that it's an API request,
-			 * now we can populate the game property so the rest of the system
-			 * knows what information to access.
-			 */
-			$key = Input::get('key');
-			$game = Game::where('key', $key)->first();
-			
-			if($game && $game->count() > 0) {
-				if($game->is_active === false) {
-					/**
-					 * The game isn't active, so we'll throw an exception.
-					 */
-					throw new Viper_Exception('Inactive Game', 'api');
-				}
+class BaseController extends Controller
+{
+    /**
+     * Contains an instance of the current user based on the authentication
+     * token passed with the current request.
+     *
+     * @var Viper\Model\User
+     */
+    protected $user;
+    /**
+     * Contains an instance of the current game based on the key passed with
+     * the current request.
+     *
+     * @var Viper\Model\Game
+     */
+    protected $game;
+    /**
+     * Contains all the current arguments for the request.
+     *
+     * @var array
+     */
+    protected $arguments = array();
+    /**
+     * When making GET requests, certain endpoints will allow for the return
+     * of associated models and data, this contains the list of requested
+     * relationships.
+     *
+     * @var array
+     */
+    protected $with = array();
+
+    /**
+     * At the start of every call we grab the information and populate the
+     * above properties, this makes the system smooth and saves having to
+     * check signatures and grab information manually.
+     */
+    public function __construct()
+    {
+        if (Input::has('key')) {
+            /**
+             * The request has the key attribute, so we know that it's an API request,
+             * now we can populate the game property so the rest of the system
+             * knows what information to access.
+             */
+            $key = Input::get('key');
+            $game = Game::where('key', $key)->first();
+
+            if ($game && $game->count() > 0) {
+                if ($game->is_active === false) {
+                    /**
+                     * The game isn't active, so we'll throw an exception.
+                     */
+                    throw new Viper_Exception('Inactive Game', 'api');
+                }
                 /**
                  * Set the game for global access to the currently active game.
                  */
@@ -68,42 +71,42 @@ class BaseController extends Controller {
                  * We want to do different things based on the HTTP verb used for
                  * the current request.
                  */
-                if($method === 'post') {
-					$this->_handlePost();
-				} elseif($method === 'get') {
-					$this->_handleGet();
-				}
-				/**
-				 * The with argument allows for developers to request related
-				 * models.
-				 */
-				if(Input::has('with')) {
-					$with = Input::get('with');
+                if ($method === 'post') {
+                    $this->_handlePost();
+                } elseif ($method === 'get') {
+                    $this->_handleGet();
+                }
+                /**
+                 * The with argument allows for developers to request related
+                 * models.
+                 */
+                if (Input::has('with')) {
+                    $with = Input::get('with');
 
-					$this->with = explode(',', $with);
-				}
-				/**
-				 * If the token attribute is provided, then we know that this request
-				 * is authenticated for a specific user, so grab that user and
-				 * populate the user property so the rest of the system knows.
-				 */
-				if(Input::has('token')) {
+                    $this->with = explode(',', $with);
+                }
+                /**
+                 * If the token attribute is provided, then we know that this request
+                 * is authenticated for a specific user, so grab that user and
+                 * populate the user property so the rest of the system knows.
+                 */
+                if (Input::has('token')) {
                     $this->_handleToken();
-				}
-			} else {
-				/**
-				 * The API credentials do not match our records, so we throw
-				 * an excpetion.
-				 */
-				throw new Viper_Exception('Unknown Game', 'api');
-			}
-		} else {
-			/**
-			 * All requests should contain a key attribute.
-			 */
-			throw new Viper_Exception('Invalid Credentials',  'api');
-		}
-	}
+                }
+            } else {
+                /**
+                 * The API credentials do not match our records, so we throw
+                 * an excpetion.
+                 */
+                throw new Viper_Exception('Unknown Game', 'api');
+            }
+        } else {
+            /**
+             * All requests should contain a key attribute.
+             */
+            throw new Viper_Exception('Invalid Credentials', 'api');
+        }
+    }
 
     /**
      * An abstracted function to handle a post request, saves cluttering
@@ -111,7 +114,8 @@ class BaseController extends Controller {
      *
      * @throws Viper\Exception
      */
-    private function _handlePost() {
+    private function _handlePost()
+    {
         /**
          * Grab the secret so that we can actually generate a valid
          * HMAC.
@@ -121,14 +125,14 @@ class BaseController extends Controller {
          * The request was a POST request, so there will definitely be
          * arguments and a signature.
          */
-        if(Input::has('arguments') && Input::has('signature')) {
+        if (Input::has('arguments') && Input::has('signature')) {
             $arguments = Input::get('arguments');
             $signature = Input::get('signature');
             /**
              * Todo: Check to make sure provided arguments is JSON string,
              * not an array
              */
-            if(hash_hmac('sha1', $arguments, $secret, false) !== $signature) {
+            if (hash_hmac('sha1', $arguments, $secret, false) !== $signature) {
                 /**
                  * The HMAC doesn't match, throw an exception.
                  */
@@ -144,26 +148,30 @@ class BaseController extends Controller {
             throw new Viper_Exception('Incomplete Request', 'incomplete');
         }
     }
+
     /**
      * Another abstracted function, but handles a get request. Right now
      * we do nothing, but that may change.
      */
-    private function _handleGet() {
+    private function _handleGet()
+    {
         /**
          * We don't actually do anything for get, but this method is here
          * to maintain integrity.
          */
     }
+
     /**
      * Yet another abstracted function (these things are everywhere), except
      * this time we do it for user tokens.
      *
      * @throws Viper\Exception
      */
-    private function _handleToken() {
+    private function _handleToken()
+    {
         $token = Input::get('token');
         $user_token = User_Token::with('user')->where('token', $token)->first();
-        if($user_token && $user_token->count() > 0) {
+        if ($user_token && $user_token->count() > 0) {
             /**
              * Set the user.
              */
@@ -175,58 +183,65 @@ class BaseController extends Controller {
             throw new Viper_Exception('Invalid Token', 'token');
         }
     }
-	/**
-	 * Helper function to provide a response for the API endpoint. This should
-	 * never be called within the code.
-	 * 
-	 * @param string $status Should be success or failure
-	 * @param array $data The data to pass back, can be an empty array
-	 * @param int $code The HTTP status code to return, 200 for success
-	 * @param array $error An array of error information, including code and message
-	 * @return Illuminate\Http\JsonResponse
-	 */
-	public static function response($status = 'success', $data = array(), $code = 200, $error = array()) {
-		$response = array();
-		/**
-		 * The data attribute only exists for successful calls, and the 
-		 * error attribute only exists for unsuccessful calls.
-		 */
-		if($status == 'success' || $status == 'failure') {
-			$response['status'] = $status;
-			if($status == 'success') {
-				$response['data'] = $data;
-			} elseif($status == 'failure') {
-				$response['error'] = $error;
-			}
-		}
-		return Response::json($response, $code);
-	}
-	/**
-	 * Helper function to return errors in a nice way, typically only ever called from the App::error()
+
+    /**
+     * Helper function to provide a response for the API endpoint. This should
+     * never be called within the code.
+     *
+     * @param string $status Should be success or failure
+     * @param array $data The data to pass back, can be an empty array
+     * @param int $code The HTTP status code to return, 200 for success
+     * @param array $error An array of error information, including code and message
+     * @return Illuminate\Http\JsonResponse
+     */
+    public static function response($status = 'success', $data = array(), $code = 200, $error = array())
+    {
+        $response = array();
+        /**
+         * The data attribute only exists for successful calls, and the
+         * error attribute only exists for unsuccessful calls.
+         */
+        if ($status == 'success' || $status == 'failure') {
+            $response['status'] = $status;
+            if ($status == 'success') {
+                $response['data'] = $data;
+            } elseif ($status == 'failure') {
+                $response['error'] = $error;
+            }
+        }
+        return Response::json($response, $code);
+    }
+
+    /**
+     * Helper function to return errors in a nice way, typically only ever called from the App::error()
      * closures, but can also be called in the instance of there being an error that doesn't warrant
      * escalation to an exception.
-	 * 
-	 * @param int $code The internal error code
-	 * @param int $http The HTTP status code
-	 * @param string $message A string explaining the error
-	 * @return Illuminate\Http\JsonResponse
-	 */
-	public static function error($code, $http, $message) {
-		return self::response('failure', array(), $http, array(
-			'code'		=> $code,
-			'message'	=> $message
-		));
-	}
-	/**
-	 * Helper function to return a successful response, this should be used internally
-	 * to return from a method.
-	 * 
-	 * @param array $data
-	 * @return Illuminate\Http\JsonResponse
-	 */
-	public function success($data = array()) {
-		return self::response('success', $data);
-	}
+     *
+     * @param int $code The internal error code
+     * @param int $http The HTTP status code
+     * @param string $message A string explaining the error
+     * @return Illuminate\Http\JsonResponse
+     */
+    public static function error($code, $http, $message)
+    {
+        return self::response('failure', array(), $http, array(
+            'code' => $code,
+            'message' => $message
+        ));
+    }
+
+    /**
+     * Helper function to return a successful response, this should be used internally
+     * to return from a method.
+     *
+     * @param array $data
+     * @return Illuminate\Http\JsonResponse
+     */
+    public function success($data = array())
+    {
+        return self::response('success', $data);
+    }
+
     /**
      * Helper function to facilitate the returning of a failure that shouldn't result in
      * an error. Ordinarily this wouldn't happen but there may some fringe cases, and
@@ -234,14 +249,15 @@ class BaseController extends Controller {
      *
      * @param mixed $message
      * @param string $type
-     * @return Illuminate\Http\JsonResponse 
+     * @return Illuminate\Http\JsonResponse
      */
-    public function failure($message, $type) {
+    public function failure($message, $type)
+    {
         $config = Config::get('response.' . $type);
-        
-        if($config && is_array($config)) {
+
+        if ($config && is_array($config)) {
             return self::error($config['code'], $config['http'], $message);
         }
     }
-	
+
 }
