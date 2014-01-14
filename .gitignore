@@ -8,3 +8,4 @@ Thumbs.db
 /app/config/testing/app.php
 /app/config/testing/database.php
 /app/tests/ExampleTest.php
+.idea
