@@ -58,42 +58,20 @@ class BaseController extends Controller {
 					 */
 					throw new Viper_Exception('Inactive Game', 'api');
 				}
-				
-				$this->game = $game;				
-				$secret = $this->game->secret;
-				$method = strtolower(Request::getMethod());
+                /**
+                 * Set the game for global access to the currently active game.
+                 */
+                $this->game = $game;
+                $method = strtolower(Request::getMethod());
 
-				if($method === 'post') {
-					/**
-					 * The request was a POST request, so there will definitely be
-					 * arguments and a signature.
-					 */
-					if(Input::has('arguments') && Input::has('signature')) {
-						$arguments = Input::get('arguments');
-						$signature = Input::get('signature');
-						/**
-						 * Todo: Check to make sure provided arguments is JSON string,
-						 * not an array
-						 */
-						if(hash_hmac('sha1', $arguments, $secret, false) !== $signature) {
-							/**
-							 * The HMAC doesn't match, throw an exception.
-							 */
-							throw new Viper_Exception('Invalid Signature', 'signature');
-						}
-
-						$this->arguments = json_decode($arguments, true);
-					} else {
-						/**
-						 * If a POST request was made, without arguments or a signature, 
-						 * then throw an exception.
-						 */
-						throw new Viper_Exception('Incomplete Request', 'incomplete');
-					}
+                /**
+                 * We want to do different things based on the HTTP verb used for
+                 * the current request.
+                 */
+                if($method === 'post') {
+					$this->_handlePost();
 				} elseif($method === 'get') {
-					/**
-					 * We don't do anything special for get
-					 */
+					$this->_handleGet();
 				}
 				/**
 				 * The with argument allows for developers to request related
@@ -110,19 +88,7 @@ class BaseController extends Controller {
 				 * populate the user property so the rest of the system knows.
 				 */
 				if(Input::has('token')) {
-					$token = Input::get('token');
-					$user_token = User_Token::with('user')->where('token', $token)->first();
-					if($user_token && $user_token->count() > 0) {
-						/**
-						 * Set the user.
-						 */
-						$this->user = $user_token->user;
-					} else {
-						/**
-						 * The token is invalid, so we should throw an exception.
-						 */
-						throw new Viper_Exception('Invalid Token', 'token');
-					}
+                    $this->_handleToken();
 				}
 			} else {
 				/**
@@ -138,6 +104,77 @@ class BaseController extends Controller {
 			throw new Viper_Exception('Invalid Credentials',  'api');
 		}
 	}
+
+    /**
+     * An abstracted function to handle a post request, saves cluttering
+     * the constructor.
+     *
+     * @throws Viper\Exception
+     */
+    private function _handlePost() {
+        /**
+         * Grab the secret so that we can actually generate a valid
+         * HMAC.
+         */
+        $secret = $this->game->secret;
+        /**
+         * The request was a POST request, so there will definitely be
+         * arguments and a signature.
+         */
+        if(Input::has('arguments') && Input::has('signature')) {
+            $arguments = Input::get('arguments');
+            $signature = Input::get('signature');
+            /**
+             * Todo: Check to make sure provided arguments is JSON string,
+             * not an array
+             */
+            if(hash_hmac('sha1', $arguments, $secret, false) !== $signature) {
+                /**
+                 * The HMAC doesn't match, throw an exception.
+                 */
+                throw new Viper_Exception('Invalid Signature', 'signature');
+            }
+
+            $this->arguments = json_decode($arguments, true);
+        } else {
+            /**
+             * If a POST request was made, without arguments or a signature,
+             * then throw an exception.
+             */
+            throw new Viper_Exception('Incomplete Request', 'incomplete');
+        }
+    }
+    /**
+     * Another abstracted function, but handles a get request. Right now
+     * we do nothing, but that may change.
+     */
+    private function _handleGet() {
+        /**
+         * We don't actually do anything for get, but this method is here
+         * to maintain integrity.
+         */
+    }
+    /**
+     * Yet another abstracted function (these things are everywhere), except
+     * this time we do it for user tokens.
+     *
+     * @throws Viper\Exception
+     */
+    private function _handleToken() {
+        $token = Input::get('token');
+        $user_token = User_Token::with('user')->where('token', $token)->first();
+        if($user_token && $user_token->count() > 0) {
+            /**
+             * Set the user.
+             */
+            $this->user = $user_token->user;
+        } else {
+            /**
+             * The token is invalid, so we should throw an exception.
+             */
+            throw new Viper_Exception('Invalid Token', 'token');
+        }
+    }
 	/**
 	 * Helper function to provide a response for the API endpoint. This should
 	 * never be called within the code.
@@ -165,9 +202,9 @@ class BaseController extends Controller {
 		return Response::json($response, $code);
 	}
 	/**
-	 * Helper function to return errors in a nice way, this should never be called
-	 * from within the code, instead an exception should be thrown and this will be called
-	 * from the App::error() block.
+	 * Helper function to return errors in a nice way, typically only ever called from the App::error()
+     * closures, but can also be called in the instance of there being an error that doesn't warrant
+     * escalation to an exception.
 	 * 
 	 * @param int $code The internal error code
 	 * @param int $http The HTTP status code
