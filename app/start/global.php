@@ -48,22 +48,29 @@ Log::useFiles(storage_path().'/logs/laravel.log');
 
 App::error(function(Exception $exception, $code) {
 	Log::error($exception);
+
+    return BaseController::error(
+        Config::get('response.unknown.code'),
+        Config::get('response.unknown.http'),
+        'Unknown error'
+    );
 });
 
+
 App::missing(function(Exception $exception) {
-	return BaseController::error(
-			Config::get('response.method.code'), 
-			Config::get('response.method.http'), 
-			'Method not found'
-	);
+    return BaseController::error(
+        Config::get('response.method.code'),
+        Config::get('response.method.http'),
+        'Method not found'
+    );
 });
 
 App::error(function(Viper\Exception $exception) {
-	return BaseController::error(
-			$exception->getCode(), 
-			$exception->getStatusCode(), 
-			$exception->getMessage()
-	);
+    return BaseController::error(
+        $exception->getCode(),
+        $exception->getStatusCode(),
+        $exception->getMessage()
+    );
 });
 
 /*
@@ -79,9 +86,9 @@ App::error(function(Viper\Exception $exception) {
 
 App::down(function() {
 	return BaseController::error(
-			Config::get('response.unavailable.code'), 
-			Config::get('response.unavailable.http'), 
-			'Be right back'
+        Config::get('response.unavailable.code'),
+        Config::get('response.unavailable.http'),
+        'Be right back'
 	);
 });
 
