@@ -7,6 +7,22 @@ Route::any('/', function () {
     throw new Viper\Exception('No method supplied', 'method');
 });
 /**
+ * This is for the admin panel!!
+ */
+Route::group(array('prefix' => '/admin'), function () {
+
+    Route::any('/signin', array(
+        'as' => 'admin.signin',
+        'uses' => 'AdminController@signin'
+    ));
+
+    Route::get('/signout', array(
+        'as' => 'admin.signout',
+        'uses' => 'AdminController@signout'
+    ));
+
+});
+/**
  * A nice little group, holding all the use related methods.
  *
  * If you can't work out what each route does, despite the fact that in most
@@ -34,12 +50,5 @@ Route::group(array('prefix' => '/user'), function () {
         'as' => 'user.register',
         'uses' => 'UserController@register'
     ));
-
-});
-/**
- * This is for the admin panel!!
- */
-Route::group(array('prefix' => '/admin'), function () {
-
 
 });
