@@ -1,7 +1,18 @@
-<?php
+<?php namespace Viper\Controllers;
+/**
+ * User Base Controller
+ * 
+ * @author Ollie Read <labs@ollieread.com>
+ * @version 1.0-alpha
+ * @license http://opensource.org/licenses/MIT MIT
+ */
 
-use Viper\Model\User_Token;
+use Viper\Models as Models;
+use Viper\Core\Facades\ViperAuth as Auth;
 
+/**
+ * Providing base functionality for the user related endpoints.
+ */
 class User_BaseController extends BaseController
 {
     /**
@@ -9,7 +20,7 @@ class User_BaseController extends BaseController
      * called once we've done the manual verification, this is just simply for
      * creating and assigning a new user token.
      *
-     * @return User_Token
+     * @return \Viper\Models\User_Token
      */
     protected function _login()
     {
@@ -17,11 +28,11 @@ class User_BaseController extends BaseController
          * We've already got the user for this request, now we just need to set
          * a token and respond so they're logged in for future requests.
          */
-        if ($this->user) {
-            $token = new User_Token;
+        if ($this->isValidUser()) {
+            $token = new Models\User_Token;
             $token->generate();
 
-            if ($this->user->token()->save($token)) {
+            if (Auth::user()->token()->save($token)) {
                 return $token;
             }
         }
@@ -39,16 +50,15 @@ class User_BaseController extends BaseController
      * serves as a dual purpose, with a single way to remove a user token.
      *
      * @return bool
-     * @throws Viper\Exception
      */
     protected function _logout()
     {
-        if ($this->user) {
+        if ($this->isValidUser()) {
             /**
              * Grab the active token. We do this just incase there is another
              * token floating around.
              */
-            $active_token = $this->user->token;
+            $active_token = Auth::user()->token;
             /**
              * Now remove that token and return success. Seeing as this is a
              * simple method/endpoint, no data is required on the return.
